@@ -1,8 +1,16 @@
 <template>
   <v-container fluid>
+
+    <v-skeleton-loader
+            v-if="loading"
+            class="mx-auto"
+            max-width="374"
+            type="image, card-heading, text@3, button"
+    ></v-skeleton-loader>
+
+
     <div v-for="character in characters" :key="character.id">
       <v-card
-          :loading="loading"
           class="mx-auto my-12"
           max-width="374"
       >
@@ -39,7 +47,7 @@ export default {
   data() {
     return {
       characters: [],
-      loading: false,
+      loading: true,
     };
   },
   created() {
@@ -49,7 +57,10 @@ export default {
     fetchCharacters() {
       axios
           .get(`${server.baseURL}/public/characters?ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
-          .then(data => (this.characters = data.data.data.results));
+          .then(data => {
+            this.characters = data.data.data.results
+            this.loading = false
+          });
     },
   }
 };
