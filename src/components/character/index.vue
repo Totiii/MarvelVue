@@ -1,66 +1,117 @@
 <template>
   <v-container fluid>
 
-    <v-skeleton-loader
-            v-if="loading"
-            class="mx-auto"
-            max-width="374"
-            type="image, card-heading, text@3, button"
-    ></v-skeleton-loader>
-
-
-    <div v-for="character in characters" :key="character.id">
-      <v-card
-          class="mx-auto my-12"
-          max-width="374"
-      >
-        <v-img
-            height="250"
-            :src="character.thumbnail.path + '.' + character.thumbnail.extension"
-        ></v-img>
-
-        <v-card-title>{{ character.name }}</v-card-title>
-
-        <v-card-text>
-          <div>{{ character.description }}</div>
-        </v-card-text>
-
-        <v-divider class="mx-4"></v-divider>
-
-        <v-card-actions>
-          <v-btn
-              color="grey lighten-3 lighten-2"
-              text
-          >
-            Details
-          </v-btn>
-        </v-card-actions>
-      </v-card>
+    <div class="input-group mb-3">
+      <input
+          type="text"
+          class="form-control"
+          placeholder="Search by title"
+          v-model="searchTitle"
+      />
+      <div class="input-group-append">
+        <button
+            class="btn btn-outline-secondary"
+            type="button"
+            @click="page = 1; fetchCharacters();"
+        >
+          Search
+        </button>
+      </div>
     </div>
+
+    <v-row>
+      <v-col
+          cols="12"
+          sm="3"
+          v-for="character in characters"
+          :key="character.id">
+        <CharacterCard :character="character"></CharacterCard>
+      </v-col>
+    </v-row>
+
+    <v-pagination
+        v-model="page"
+        :length="count"
+        @change="handlePageChange"
+    ></v-pagination>
+
   </v-container>
 </template>
 <script>
 import { server } from "../../helper";
 import axios from "axios";
+import CharacterCard from "./character_card";
 
 export default {
+  components: {
+    CharacterCard
+  },
   data() {
     return {
       characters: [],
       loading: true,
+
+      searchTitle: "",
+
+      page: 1,
+      count: 0,
     };
   },
+
   created() {
     this.fetchCharacters();
   },
   methods: {
-    fetchCharacters() {
+/*    fetchCharacters() {
       axios
           .get(`${server.baseURL}/public/characters?ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
           .then(data => {
             this.characters = data.data.data.results
             this.loading = false
           });
+    },*/
+
+    getRequestParams(searchTitle, page) {
+      let params = '';
+
+      if (searchTitle) {
+        params += "&name=" + searchTitle;
+      }
+
+      if (page) {
+        params += "&page=" + page - 1;
+      }
+
+      return params;
+    },
+
+    fetchCharacters() {
+      const params = this.getRequestParams(
+          this.searchTitle,
+          this.page,
+      );
+
+      let url
+      if(params){
+        console.log(params)
+        url = `${server.baseURL}/public/characters?ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268` + params
+      }else{
+        url = `${server.baseURL}/public/characters?ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`
+      }
+
+      axios
+          .get(url)
+          .then(data => {
+            this.characters = data.data.data.results
+            this.count = Math.ceil(data.data.data.results.length / 8)
+            this.loading = false
+          });
+
+    },
+
+    handlePageChange(value) {
+      this.page = value;
+      this.fetchCharacters();
     },
   }
 };
