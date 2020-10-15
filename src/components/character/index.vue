@@ -1,6 +1,20 @@
 <template>
   <v-container fluid>
-    <v-row>
+
+    <v-row v-if="loading">
+      <v-col
+          cols="12"
+          sm="3"
+          v-for="n in 8"
+          :key="n">
+        <v-skeleton-loader
+            class="mx-auto"
+            type="card"
+        ></v-skeleton-loader>
+      </v-col>
+    </v-row>
+
+    <v-row v-if="!loading">
       <v-col
           cols="12"
           sm="3"
@@ -10,7 +24,7 @@
       </v-col>
     </v-row>
 
-    <Pagination :count="count" :handle-page-change="handlePageChange" :page="page"></Pagination>
+    <Pagination v-if="!loading" :count="count" :handle-page-change="handlePageChange" :page="page"></Pagination>
 
   </v-container>
 </template>
@@ -29,9 +43,17 @@ export default {
     return {
       characters: [],
       loading: true,
+      nbResults: 0,
+      allCharacters: [],
 
       page: 1,
       count: 0,
+
+      descriptionLimit: 60,
+      entries: [],
+      isLoading: false,
+      model: null,
+      search: null,
     };
   },
 
@@ -39,13 +61,15 @@ export default {
     this.fetchCharacters();
   },
   methods: {
-    fetchCharacters() {
+    async fetchCharacters() {
+      this.loading = true
       let offset = (this.page - 1) * 8
-      axios
+
+      await axios
           .get(`${server.baseURL}/public/characters?ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268&offset=`+ offset + `&limit=8`)
           .then(data => {
             this.characters = data.data.data.results
-            console.log(data.data.data)
+            this.nbResults = data.data.data.total
             this.count = Math.ceil(data.data.data.total / 8)
             this.loading = false
           });
@@ -55,6 +79,6 @@ export default {
       this.page = value;
       this.fetchCharacters();
     },
-  }
+  },
 };
 </script>
