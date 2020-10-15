@@ -1,25 +1,20 @@
 <template>
   <v-container fluid>
 
-    <div class="input-group mb-3">
-      <input
-          type="text"
-          class="form-control"
-          placeholder="Search by title"
-          v-model="searchTitle"
-      />
-      <div class="input-group-append">
-        <button
-            class="btn btn-outline-secondary"
-            type="button"
-            @click="page = 1; fetchCharacters();"
-        >
-          Search
-        </button>
-      </div>
-    </div>
+    <v-row v-if="loading">
+      <v-col
+          cols="12"
+          sm="3"
+          v-for="n in 8"
+          :key="n">
+        <v-skeleton-loader
+            class="mx-auto"
+            type="card"
+        ></v-skeleton-loader>
+      </v-col>
+    </v-row>
 
-    <v-row>
+    <v-row v-if="!loading">
       <v-col
           cols="12"
           sm="3"
@@ -29,11 +24,7 @@
       </v-col>
     </v-row>
 
-    <v-pagination
-        v-model="page"
-        :length="count"
-        @change="handlePageChange"
-    ></v-pagination>
+    <Pagination v-if="!loading" :count="count" :handle-page-change="handlePageChange" :page="page"></Pagination>
 
   </v-container>
 </template>
@@ -41,20 +32,28 @@
 import { server } from "../../helper";
 import axios from "axios";
 import CharacterCard from "./character_card";
+import Pagination from "../pagination";
 
 export default {
   components: {
-    CharacterCard
+    CharacterCard,
+    Pagination
   },
   data() {
     return {
       characters: [],
       loading: true,
-
-      searchTitle: "",
+      nbResults: 0,
+      allCharacters: [],
 
       page: 1,
       count: 0,
+
+      descriptionLimit: 60,
+      entries: [],
+      isLoading: false,
+      model: null,
+      search: null,
     };
   },
 
@@ -62,57 +61,24 @@ export default {
     this.fetchCharacters();
   },
   methods: {
-/*    fetchCharacters() {
-      axios
-          .get(`${server.baseURL}/public/characters?ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
+    async fetchCharacters() {
+      this.loading = true
+      let offset = (this.page - 1) * 8
+
+      await axios
+          .get(`${server.baseURL}/public/characters?ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268&offset=`+ offset + `&limit=8`)
           .then(data => {
             this.characters = data.data.data.results
+            this.nbResults = data.data.data.total
+            this.count = Math.ceil(data.data.data.total / 8)
             this.loading = false
           });
-    },*/
-
-    getRequestParams(searchTitle, page) {
-      let params = '';
-
-      if (searchTitle) {
-        params += "&name=" + searchTitle;
-      }
-
-      if (page) {
-        params += "&page=" + page - 1;
-      }
-
-      return params;
-    },
-
-    fetchCharacters() {
-      const params = this.getRequestParams(
-          this.searchTitle,
-          this.page,
-      );
-
-      let url
-      if(params){
-        console.log(params)
-        url = `${server.baseURL}/public/characters?ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268` + params
-      }else{
-        url = `${server.baseURL}/public/characters?ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`
-      }
-
-      axios
-          .get(url)
-          .then(data => {
-            this.characters = data.data.data.results
-            this.count = Math.ceil(data.data.data.results.length / 8)
-            this.loading = false
-          });
-
     },
 
     handlePageChange(value) {
       this.page = value;
       this.fetchCharacters();
     },
-  }
+  },
 };
 </script>
