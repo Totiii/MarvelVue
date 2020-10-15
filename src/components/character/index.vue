@@ -10,12 +10,7 @@
       </v-col>
     </v-row>
 
-    <v-pagination
-        v-model="page"
-        :length="count"
-        :total-visible="7"
-        @input="handlePageChange"
-    ></v-pagination>
+    <Pagination :count="count" :handle-page-change="handlePageChange" :page="page"></Pagination>
 
   </v-container>
 </template>
@@ -23,10 +18,12 @@
 import { server } from "../../helper";
 import axios from "axios";
 import CharacterCard from "./character_card";
+import Pagination from "../pagination";
 
 export default {
   components: {
-    CharacterCard
+    CharacterCard,
+    Pagination
   },
   data() {
     return {
