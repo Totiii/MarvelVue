@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import CharacterIndex from '@/components/character/index.vue'
+import CharacterDetails from '@/components/character/details.vue'
 
 Vue.use(VueRouter)
 
@@ -10,6 +11,12 @@ const routes = [
     name: 'Home',
     component: CharacterIndex
   },
+  {
+    path: '/character/:id',
+    name: 'CharacterDetails',
+    component: CharacterDetails,
+    props: true
+  }
 ]
 
 const router = new VueRouter({
