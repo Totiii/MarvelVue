@@ -34,12 +34,14 @@
     <v-divider class="mx-4"></v-divider>
 
     <v-card-actions>
+      <router-link :to="'/comics/' + comics.id" tag="button">
       <v-btn
           color="grey lighten-3 lighten-2"
           text
       >
         Details
       </v-btn>
+      </router-link>
     </v-card-actions>
   </v-card>
 </template>
