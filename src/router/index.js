@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import CharacterIndex from '@/components/character/index.vue'
 import CharacterDetails from '@/components/character/details.vue'
+import Comics from '@/components/comics/index'
 
 Vue.use(VueRouter)
 
@@ -16,6 +17,12 @@ const routes = [
     name: 'CharacterDetails',
     component: CharacterDetails,
     props: true
+  },
+
+  {
+    path: '/comics',
+    name: 'ComicsAll',
+    component: Comics,
   }
 ]
 
