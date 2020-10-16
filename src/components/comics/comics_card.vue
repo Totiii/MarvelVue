@@ -35,12 +35,14 @@
 
     <v-card-actions>
       <v-btn
+          block
           color="grey lighten-3 lighten-2"
           text
       >
         Details
       </v-btn>
     </v-card-actions>
+
   </v-card>
 </template>
 <script>

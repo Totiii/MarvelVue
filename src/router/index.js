@@ -3,6 +3,10 @@ import VueRouter from 'vue-router'
 import CharacterIndex from '@/components/character/index.vue'
 import CharacterDetails from '@/components/character/details.vue'
 import Comics from '@/components/comics/index'
+import Events from '@/components/events/index'
+import EventDetail from '@/components/events/detail'
+import Series from '@/components/series/index'
+import SerieDetail from '@/components/series/detail'
 
 Vue.use(VueRouter)
 
@@ -18,12 +22,33 @@ const routes = [
     component: CharacterDetails,
     props: true
   },
-
+  {
+    path: '/events',
+    name: 'Events',
+    component: Events,
+  },
+  {
+    path: '/events/:id',
+    name: 'EventsDetails',
+    component: EventDetail,
+    props: true
+  },
   {
     path: '/comics',
     name: 'ComicsAll',
     component: Comics,
-  }
+  },
+  {
+    path: '/series',
+    name: 'Series',
+    component: Series,
+  },
+  {
+    path: '/series/:id',
+    name: 'SerieDetail',
+    component: SerieDetail,
+    props: true
+  },
 ]
 
 const router = new VueRouter({

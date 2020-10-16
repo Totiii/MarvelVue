@@ -5,12 +5,11 @@
   >
     <v-row class="justify-center">
       <v-col
-          v-click-outside
           cols="12"
           sm="11"
-          class="text-lg-center orange darken-3"
+          class="text-lg-center amber darken-3"
       >
-        <h2>Comics</h2>
+        <h2>Events</h2>
       </v-col>
     </v-row>
     <v-carousel
@@ -21,7 +20,7 @@
         height="800"
     >
       <v-carousel-item
-          v-for="(comic, i) in comics"
+          v-for="(event, i) in events"
           :key="i"
       >
 
@@ -36,7 +35,7 @@
 
             >
               <v-img
-                  :src="comic.thumbnail.path + '.' + comic.thumbnail.extension"
+                  :src="event.thumbnail.path + '.' + event.thumbnail.extension"
                   contain
               >
               </v-img>
@@ -46,11 +45,11 @@
                 sm="6"
             >
               <div class="text--primary">
-                {{ comic.title }}
+                {{ event.title }}
               </div>
 
               <v-card-text>
-                <div>{{ comic.description | limitDescription330Char }}</div>
+                <div>{{ event.description | limitDescription330Char }}</div>
               </v-card-text>
 
             </v-col>
@@ -60,20 +59,20 @@
               <v-card-subtitle class="pb-0">Related links</v-card-subtitle>
 
               <v-card-text class="text--primary">
-                <div v-for="link in comic.urls" :key="link.type"> <b>{{ link.type | capitalize }} </b>: <a :href="link.url" target="_blank">{{ link.url }}</a> </div>
+                <div v-for="link in event.urls" :key="link.type"> <b>{{ link.type | capitalize }} </b>: <a :href="link.url" target="_blank">{{ link.url }}</a> </div>
               </v-card-text>
             </v-col>
 
-<!--            <v-card-text>
+            <v-card-text>
               <v-btn
                   block
                   color="grey lighten-3 lighten-2"
                   text
-                  @click="$router.push({ name: 'EventsDetails', params: { id: comic.id } })"
+                  @click="$router.push({ name: 'EventsDetails', params: { id: event.id } })"
               >
                 Details
               </v-btn>
-            </v-card-text>-->
+            </v-card-text>
           </v-row>
         </v-card>
       </v-carousel-item>
@@ -82,6 +81,6 @@
 </template>
 <script>
 export default{
-  props: ['comics'],
+  props: ['events'],
 }
 </script>
