@@ -8,6 +8,7 @@
         max-width="300"
         type="article"
     ></v-skeleton-loader>
+
     <v-row>
       <v-card
           v-if="!loading"
@@ -50,7 +51,7 @@
               </div>
             </v-card-text>
 
-            <v-card-title>Creator: <router-link :to="({ name: 'creatorsDetails', params: { id: creator.id } })" tag="button"> {{ creator.fullName }}</router-link></v-card-title>
+            <v-card-title>Creator: <router-link :to="({ name: 'CreatorDetails', params: { id: creator.id } })" tag="button"> {{ creator.fullName }}</router-link></v-card-title>
 
             <v-card-subtitle class="pb-0">Related links</v-card-subtitle>
 
@@ -67,6 +68,7 @@
         </v-row>
       </v-card>
     </v-row>
+
 
     <v-footer
         v-if="!loading"
