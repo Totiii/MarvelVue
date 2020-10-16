@@ -203,7 +203,6 @@ export default {
       creators: [],
       creators_model: null,
       search_creators: null,
-      tab: null,
 
 
       page: 1,
@@ -212,10 +211,6 @@ export default {
   },
 
   watch: {
-    creators_model (val) {
-      if (val != null) this.tab = 0
-      else this.tab = null
-    },
     search_creators (val) {
       this.isLoadingCreators = true
       // Lazily load input items
