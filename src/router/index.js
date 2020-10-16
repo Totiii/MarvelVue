@@ -8,6 +8,9 @@ import Series from '@/components/series/index'
 import SerieDetail from '@/components/series/details'
 import Comics from '@/components/comics/index'
 import ComicsDetails from '@/components/comics/details'
+import Creators from '@/components/creator/index'
+import CreatorDetails from '@/components/creator/details'
+
 
 Vue.use(VueRouter)
 
@@ -56,6 +59,18 @@ const routes = [
     component: SerieDetail,
     props: true
   },
+  {
+    path: '/creators',
+    name: 'Creators',
+    component: Creators,
+  },
+  {
+    path: '/creators/:id',
+    name: 'CreatorDetails',
+    component: CreatorDetails,
+    props: true
+  },
+
 ]
 
 const router = new VueRouter({

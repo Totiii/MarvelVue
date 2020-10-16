@@ -1,15 +1,13 @@
 <template>
   <v-footer
       absolute
-      class="font-weight-medium pt-10"
+      class="font-weight-medium"
   >
-
-
     <v-skeleton-loader v-if="loading" type="text"></v-skeleton-loader>
-    <div v-else>
+    <!--<div v-else>
       <span>{{ attributionText }}</span>
       <span v-if="last_modified !== '' "> - Last update: {{last_modified}}</span>
-    </div>
+    </div>-->
   </v-footer>
 </template>
 
