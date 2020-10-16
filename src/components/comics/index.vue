@@ -30,8 +30,7 @@
                 ></v-text-field>
               </v-list-item-content>
             </v-list-item>
-          </v-list>
-          <v-list dense nav>
+
             <v-list-item>
               <v-list-item-content>
                 <v-select
@@ -44,8 +43,7 @@
                 ></v-select>
               </v-list-item-content>
             </v-list-item>
-          </v-list>
-          <v-list dense nav>
+
             <v-list-item>
               <v-list-item-content>
                 <v-autocomplete
@@ -93,8 +91,7 @@
                 </v-autocomplete>
               </v-list-item-content>
             </v-list-item>
-          </v-list>
-          <v-list dense nav>
+
             <v-list-item>
               <v-list-item-content>
                 <v-autocomplete
@@ -137,8 +134,7 @@
                 </v-autocomplete>
               </v-list-item-content>
             </v-list-item>
-          </v-list>
-          <v-list dense nav>
+
             <v-list-item>
               <v-list-item-content>
                 <v-text-field
