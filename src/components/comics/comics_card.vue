@@ -36,6 +36,7 @@
     <v-card-actions>
       <router-link :to="'/comics/' + comics.id" tag="button">
       <v-btn
+          block
           color="grey lighten-3 lighten-2"
           text
           block
@@ -44,6 +45,7 @@
       </v-btn>
       </router-link>
     </v-card-actions>
+
   </v-card>
 </template>
 <script>
