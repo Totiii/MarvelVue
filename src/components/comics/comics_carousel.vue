@@ -39,6 +39,7 @@
                   :src="comic.thumbnail.path + '.' + comic.thumbnail.extension"
                   contain
               >
+                <!-- TODO add computed -->
               </v-img>
             </v-col>
             <v-col

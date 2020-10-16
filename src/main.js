@@ -20,5 +20,5 @@ Vue.filter('limitDescription330Char', function (value) {
 new Vue({
   router,
   vuetify,
-  render: h => h(App)
+  render: h => h(App),
 }).$mount('#app')
