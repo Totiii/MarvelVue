@@ -1,6 +1,5 @@
 <template>
   <v-card
-      min-height="800"
       class="mx-auto"
   >
     <v-row class="justify-center">
@@ -17,7 +16,7 @@
         hide-delimiter-background
         show-arrows-on-hover
         hide-delimiters
-        height="800"
+        height="auto"
     >
       <v-carousel-item
           v-for="(event, i) in events"
@@ -26,7 +25,7 @@
 
         <v-card
             class="mx-auto"
-            height="800"
+            height="auto"
         >
           <v-row>
             <v-col

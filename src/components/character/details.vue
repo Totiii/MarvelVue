@@ -40,8 +40,9 @@
           </v-card-text>
         </v-col>
       </v-row>
+    </v-card>
 
-      <v-row class="ml-2">
+      <v-row class="ml-2 mb-10">
         <v-col
             cols="12"
             sm="4"
@@ -82,8 +83,6 @@
         </v-col>
 
       </v-row>
-
-    </v-card>
 
 
     <v-footer
