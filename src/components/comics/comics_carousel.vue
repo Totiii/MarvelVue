@@ -64,16 +64,16 @@
               </v-card-text>
             </v-col>
 
-<!--            <v-card-text>
+            <v-card-text>
               <v-btn
                   block
                   color="grey lighten-3 lighten-2"
                   text
-                  @click="$router.push({ name: 'EventsDetails', params: { id: comic.id } })"
+                  @click="$router.push({ name: 'ComicsDetails', params: { id: comic.id } })"
               >
                 Details
               </v-btn>
-            </v-card-text>-->
+            </v-card-text>
           </v-row>
         </v-card>
       </v-carousel-item>
