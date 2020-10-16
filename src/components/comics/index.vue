@@ -20,19 +20,20 @@
 
           <v-divider></v-divider>
 
-          <v-list
-              dense
-              nav
-          >
+          <v-list dense nav>
             <v-list-item>
-
-
               <v-list-item-content>
                 <v-text-field
                   v-model="inp_title"
                   @keyup="onSearchTitle()"
                   label="Title"
                 ></v-text-field>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+          <v-list dense nav>
+            <v-list-item>
+              <v-list-item-content>
                 <v-select
                     :items="comics_format"
                     v-model="slt_format"
@@ -41,9 +42,14 @@
                     item-value="url"
                     label="Type of format"
                 ></v-select>
-
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+          <v-list dense nav>
+            <v-list-item>
+              <v-list-item-content>
                 <v-autocomplete
-                    v-model="creators_model"
+                    v-model="atc_creators"
                     :items="creators"
                     :loading="isLoadingCreators"
                     :search-input.sync="search_creators"
@@ -85,8 +91,14 @@
                     </v-list-item-content>
                   </template>
                 </v-autocomplete>
-                <!--<v-autocomplete
-                    v-model="model"
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+          <v-list dense nav>
+            <v-list-item>
+              <v-list-item-content>
+                <v-autocomplete
+                    v-model="atc_characters"
                     :items="characters"
                     :loading="isLoadingCharacters"
                     :search-input.sync="search_characters"
@@ -94,13 +106,13 @@
                     clearable
                     hide-details
                     hide-selected
-                    item-text="fullName"
+                    item-text="name"
                     item-value="id"
                     label="Characters"
                 >
                   <template v-slot:no-data>
                     <v-list-item>
-                      <v-list-item-title v-if="0==0"> &lt;!&ndash; TODO faire la condition si il y a du text dans l'input&ndash;&gt;
+                      <v-list-item-title v-if="0==0">
                         No data try another search
                       </v-list-item-title>
                       <v-list-item-title v-else>
@@ -114,28 +126,26 @@
                         :input-value="selected"
                         v-on="on"
                     >
-                      <span v-text="item.fullName"></span>
+                      <span v-text="item.name"></span>
                     </v-chip>
                   </template>
                   <template v-slot:item="{ item }">
                     <v-list-item-content>
-                      <v-list-item-title v-text="item.fullName"></v-list-item-title>
+                      <v-list-item-title v-text="item.name"></v-list-item-title>
                     </v-list-item-content>
                   </template>
-                </v-autocomplete>-->
-
+                </v-autocomplete>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+          <v-list dense nav>
+            <v-list-item>
+              <v-list-item-content>
                 <v-text-field
+                    v-model="inp_isbn"
+                    @keyup="onSearchISBN()"
                     label="ISBN"
                 ></v-text-field>
-                <v-text-field
-                    label="EAN"
-                ></v-text-field>
-                <v-text-field
-                    label="ISSN"
-                ></v-text-field>
-
-
-
               </v-list-item-content>
             </v-list-item>
           </v-list>
@@ -197,6 +207,7 @@ export default {
 
       inp_title: "",
       slt_format: "",
+      inp_isbn: "",
       comics_format:[
           { name: 'Infinite comic', url: 'infinite%20comic' },
           { name: 'Comic', url: 'comic' },
@@ -208,10 +219,11 @@ export default {
       isLoadingCreators: false,
       isLoadingCharacters: false,
       creators: [],
-      creators_model: null,
+      atc_creators: null,
       search_creators: null,
-
-
+      characters: [],
+      atc_characters: null,
+      search_characters: null,
       page: 1,
       count: 0,
     };
@@ -220,8 +232,7 @@ export default {
   watch: {
     search_creators (val) {
       this.isLoadingCreators = true
-      // Lazily load input items
-      fetch(`${server.baseURL}/public/creators?nameStartsWith=${val}&limit=30&ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
+      fetch(`${server.baseURL}/public/creators?nameStartsWith=${val}&limit=10&ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
           .then(res => res.clone().json())
           .then(res => {
             this.creators = res.data.results
@@ -231,6 +242,21 @@ export default {
           })
           .finally(() => (this.isLoadingCreators = false))
     },
+
+    search_characters (val) {
+      this.isLoadingCharacters = true
+      fetch(`${server.baseURL}/public/characters?nameStartsWith=${val}&limit=10&ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
+          .then(res => res.clone().json())
+          .then(res => {
+            this.characters = res.data.results
+          })
+          .catch(err => {
+            console.log(err)
+          })
+          .finally(() => (this.isLoadingCharacters = false))
+    },
+
+
   },
 
 
@@ -241,7 +267,7 @@ export default {
 
     onSearchTitle(){
       if(this.inp_title && this.inp_title.length > 0){
-        search_params["title"] = this.inp_title
+        search_params["title"] = encodeURIComponent(this.inp_title)
       }else {
         delete search_params["title"]
       }
@@ -251,12 +277,22 @@ export default {
       console.log("format")
       console.log(this.slt_format)
       if(this.slt_format){
-        search_params["format"] = this.slt_format
+        search_params["format"] = encodeURIComponent(this.slt_format)
       }else {
         delete search_params["format"]
       }
       this.fetchComics(search_params);
     },
+    onSearchISBN(){
+      if(this.inp_isbn && this.inp_isbn.length > 0){
+        search_params["isbn"] = encodeURIComponent(this.inp_isbn)
+      }else {
+        delete search_params["isbn"]
+      }
+      this.fetchComics(search_params);
+    },
+
+
 
     fetchComics(filters={}) {
       this.loading = true
@@ -274,13 +310,6 @@ export default {
       if("isbn" in filters && filters["isbn"] !== ""){
         url_request+= `&isbn=${filters["isbn"]}`
       }
-      if("ean" in filters && filters["ean"] !== ""){
-        url_request+= `&ean=${filters["ean"]}`
-      }
-      if("issn" in filters && filters["issn"] !== ""){
-        url_request+= `&issn=${filters["issn"]}`
-      }
-
       axios
               .get(url_request)
               .then(data => {
