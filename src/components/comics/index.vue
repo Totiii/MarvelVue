@@ -29,10 +29,14 @@
 
               <v-list-item-content>
                 <v-text-field
-                    label="Title"
+                  v-model="inp_title"
+                  @keyup="onSearchTitle()"
+                  label="Title"
                 ></v-text-field>
                 <v-select
                     :items="comics_format"
+                    v-model="slt_format"
+                    @change="onSearchFormat()"
                     item-text="name"
                     item-value="url"
                     label="Type of format"
@@ -179,7 +183,7 @@ import axios from "axios";
 import ComicsCard from "./comics_card";
 import Pagination from "../pagination";
 import Footer from "../footer";
-
+let search_params = {};
 export default {
   components: {
     ComicsCard,
@@ -190,6 +194,9 @@ export default {
     return {
       comics_list: [],
       loading: true,
+
+      inp_title: "",
+      slt_format: "",
       comics_format:[
           { name: 'Infinite comic', url: 'infinite%20comic' },
           { name: 'Comic', url: 'comic' },
@@ -232,32 +239,46 @@ export default {
   },
   methods: {
 
-    // eslint-disable-next-line no-unused-vars
-    fetchComics(title="", creators="", characters="", format="", isbn="", ean="", issn="") {
+    onSearchTitle(){
+      if(this.inp_title && this.inp_title.length > 0){
+        search_params["title"] = this.inp_title
+      }else {
+        delete search_params["title"]
+      }
+      this.fetchComics(search_params);
+    },
+    onSearchFormat(){
+      console.log("format")
+      console.log(this.slt_format)
+      if(this.slt_format){
+        search_params["format"] = this.slt_format
+      }else {
+        delete search_params["format"]
+      }
+      this.fetchComics(search_params);
+    },
 
-
+    fetchComics(filters={}) {
       this.loading = true
       let offset = (this.page - 1) * 8
-
-
       let url_request = `${server.baseURL}/public/comics?offset=${offset}&limit=9&ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`
-      if(title !== ""){
-        url_request+= `&titleStartsWith=${title}`
+      if("title" in filters && filters["title"] !== ""){
+        url_request+= `&titleStartsWith=${filters["title"]}`
       }
-      if(format !== ""){
-        url_request+= `&format=${format}`
+      if("format" in filters && filters["format"] !== ""){
+        url_request+= `&format=${filters["format"]}`
       }
-      if(characters !== ""){
-        url_request+= `&characters=${characters}`
+      if("characters" in filters && filters["characters"] !== ""){
+        url_request+= `&characters=${filters["characters"]}`
       }
-      if(isbn !== ""){
-        url_request+= `&isbn=${isbn}`
+      if("isbn" in filters && filters["isbn"] !== ""){
+        url_request+= `&isbn=${filters["isbn"]}`
       }
-      if(ean !== ""){
-        url_request+= `&ean=${ean}`
+      if("ean" in filters && filters["ean"] !== ""){
+        url_request+= `&ean=${filters["ean"]}`
       }
-      if(issn !== ""){
-        url_request+= `&issn=${issn}`
+      if("issn" in filters && filters["issn"] !== ""){
+        url_request+= `&issn=${filters["issn"]}`
       }
 
       axios
