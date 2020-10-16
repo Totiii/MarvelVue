@@ -37,15 +37,11 @@
                     item-value="url"
                     label="Type of format"
                 ></v-select>
-                <v-text-field
-                    label="ISBN"
-                ></v-text-field>
-
 
                 <v-autocomplete
-                    v-model="model"
+                    v-model="creators_model"
                     :items="creators"
-                    :loading="isLoading"
+                    :loading="isLoadingCreators"
                     :search-input.sync="search_creators"
                     chips
                     clearable
@@ -57,7 +53,50 @@
                 >
                   <template v-slot:no-data>
                     <v-list-item>
-                      <v-list-item-title v-if="0==0"> <!-- TODO faire la condition si il y a du text dans l'input-->
+                      <v-list-item-title v-if="0==0">
+                        No data try another search
+                      </v-list-item-title>
+                      <v-list-item-title v-else>
+                        Start type to search a creator
+                      </v-list-item-title>
+                    </v-list-item>
+                  </template>
+                  <template v-slot:selection="{ attr, on, item, selected }">
+                    <v-chip
+                        v-bind="attr"
+                        :input-value="selected"
+                        color="blue-grey"
+                        class="white--text"
+                        v-on="on"
+                    >
+                      <v-icon left>
+                        mdi-bitcoin
+                      </v-icon>
+                      <span v-text="item.fullName"></span>
+                    </v-chip>
+                  </template>
+                  <template v-slot:item="{ item }">
+                    <v-list-item-content>
+                      <v-list-item-title v-text="item.fullName"></v-list-item-title>
+                    </v-list-item-content>
+                  </template>
+                </v-autocomplete>
+                <!--<v-autocomplete
+                    v-model="model"
+                    :items="characters"
+                    :loading="isLoadingCharacters"
+                    :search-input.sync="search_characters"
+                    chips
+                    clearable
+                    hide-details
+                    hide-selected
+                    item-text="fullName"
+                    item-value="id"
+                    label="Characters"
+                >
+                  <template v-slot:no-data>
+                    <v-list-item>
+                      <v-list-item-title v-if="0==0"> &lt;!&ndash; TODO faire la condition si il y a du text dans l'input&ndash;&gt;
                         No data try another search
                       </v-list-item-title>
                       <v-list-item-title v-else>
@@ -79,7 +118,17 @@
                       <v-list-item-title v-text="item.fullName"></v-list-item-title>
                     </v-list-item-content>
                   </template>
-                </v-autocomplete>
+                </v-autocomplete>-->
+
+                <v-text-field
+                    label="ISBN"
+                ></v-text-field>
+                <v-text-field
+                    label="EAN"
+                ></v-text-field>
+                <v-text-field
+                    label="ISSN"
+                ></v-text-field>
 
 
 
@@ -110,18 +159,15 @@
       <v-col
           cols="12"
           sm="4"
-          v-for="comics in comics_list"
+          v-for="comics in comics_list.data.results"
           :key="comics.id">
         <ComicsCard :comics="comics"></ComicsCard>
       </v-col>
     </v-row>
 
-    <v-pagination
-        v-if="!loading"
-        v-model="page"
-        :length="count"
-        @change="handlePageChange"
-    ></v-pagination>
+    <Pagination v-if="!loading" :count="count" :handle-page-change="handlePageChange" :page="page"></Pagination>
+    <Footer :loading="loading" :attributionText="comics_list.attributionText" :last_modified="''"></Footer>
+
 
       </v-col>
     </v-row>
@@ -131,10 +177,14 @@
 import { server } from "../../helper";
 import axios from "axios";
 import ComicsCard from "./comics_card";
+import Pagination from "../pagination";
+import Footer from "../footer";
 
 export default {
   components: {
-    ComicsCard
+    ComicsCard,
+    Pagination,
+    Footer
   },
   data() {
     return {
@@ -148,38 +198,36 @@ export default {
           { name: 'Digest', url: 'digest' },
         ],
 
-      isLoading: false,
-      items: [],
+      isLoadingCreators: false,
+      isLoadingCharacters: false,
       creators: [],
-      model: null,
+      creators_model: null,
       search_creators: null,
       tab: null,
+
+
+      page: 1,
+      count: 0,
     };
   },
 
   watch: {
-    model (val) {
+    creators_model (val) {
       if (val != null) this.tab = 0
       else this.tab = null
     },
     search_creators (val) {
-      console.log(val)
-      // Items have already been loaded
-      if (this.items.length > 0) return
-
-      this.isLoading = true
-
+      this.isLoadingCreators = true
       // Lazily load input items
       fetch(`${server.baseURL}/public/creators?nameStartsWith=${val}&limit=30&ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
           .then(res => res.clone().json())
           .then(res => {
-            console.log(res)
             this.creators = res.data.results
           })
           .catch(err => {
             console.log(err)
           })
-          .finally(() => (this.isLoading = false))
+          .finally(() => (this.isLoadingCreators = false))
     },
   },
 
@@ -189,58 +237,48 @@ export default {
   },
   methods: {
 
-   /* fetchComics(title="", creators="", characters="", format="", isbn="", ean="", issn="") {*/
-    fetchComics() {
-          axios
-              .get(`${server.baseURL}/public/comics?limit=9&ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
-              .then(data => {
-                this.comics_list = data.data.data.results
-                this.loading = false
-              });
-        },
+    // eslint-disable-next-line no-unused-vars
+    fetchComics(title="", creators="", characters="", format="", isbn="", ean="", issn="") {
 
- /*   getRequestParams(searchTitle, page) {
-      let params = '';
 
-      if (searchTitle) {
-        params += "&name=" + searchTitle;
+      this.loading = true
+      let offset = (this.page - 1) * 8
+
+
+      let url_request = `${server.baseURL}/public/comics?offset=${offset}&limit=9&ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`
+      if(title !== ""){
+        url_request+= `&titleStartsWith=${title}`
       }
-
-      if (page) {
-        params += "&page=" + page - 1;
+      if(format !== ""){
+        url_request+= `&format=${format}`
       }
-
-      return params;
-    },
-
-    fetchCharacters() {
-      const params = this.getRequestParams(
-          this.searchTitle,
-          this.page,
-      );
-
-      let url
-      if(params){
-        console.log(params)
-        url = `${server.baseURL}/public/characters?ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268` + params
-      }else{
-        url = `${server.baseURL}/public/characters?ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`
+      if(characters !== ""){
+        url_request+= `&characters=${characters}`
+      }
+      if(isbn !== ""){
+        url_request+= `&isbn=${isbn}`
+      }
+      if(ean !== ""){
+        url_request+= `&ean=${ean}`
+      }
+      if(issn !== ""){
+        url_request+= `&issn=${issn}`
       }
 
       axios
-          .get(url)
-          .then(data => {
-            this.characters = data.data.data.results
-            this.count = Math.ceil(data.data.data.results.length / 8)
-            this.loading = false
-          });
-
-    },
-
+              .get(url_request)
+              .then(data => {
+                this.comics_list = data.data
+                this.nbResults = data.data.data.total
+                this.count = Math.ceil(data.data.data.total / 8)
+              }).finally(() => {this.loading = false});
+      },
     handlePageChange(value) {
       this.page = value;
-      this.fetchCharacters();
-    },*/
+      this.fetchComics();
+    },
+
+
   }
 };
 </script>

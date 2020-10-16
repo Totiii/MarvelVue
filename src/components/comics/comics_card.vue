@@ -38,6 +38,7 @@
       <v-btn
           color="grey lighten-3 lighten-2"
           text
+          block
       >
         Details
       </v-btn>
