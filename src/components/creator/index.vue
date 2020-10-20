@@ -20,17 +20,18 @@
 
           <v-divider></v-divider>
 
-          <v-list
-              dense
-              nav
-          >
+          <v-list dense nav>
             <v-list-item>
-
-
               <v-list-item-content>
                 <v-text-field
+                    v-model="inp_name"
+                    @keyup="onSearchName()"
                     label="Name"
                 ></v-text-field>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-content>
 
                 <v-autocomplete
                     v-model="slc_comics_models"
@@ -125,7 +126,7 @@ import axios from "axios";
 import CreatorCard from "./creator_card";
 import Pagination from "../pagination";
 import Footer from "../footer";
-
+let search_params = {};
 export default {
   components: {
     CreatorCard,
@@ -139,6 +140,7 @@ export default {
 
       isLoadingComics: false,
       comics: [],
+      inp_name:"",
       slc_comics_models: null,
       search_comics: null,
 
@@ -168,8 +170,21 @@ export default {
   },
   methods: {
 
+    onSearchName(){
+      console.log(encodeURI(this.inp_name))
+
+      if(this.inp_name && this.inp_name.length > 0){
+        search_params["name"] = encodeURIComponent(this.inp_name)
+      }else {
+        delete search_params["name"]
+      }
+      this.fetchCreators(search_params);
+      console.log(search_params)
+    },
+
+
     // eslint-disable-next-line no-unused-vars
-    fetchCreators(name="") {
+    fetchCreators(filters={}) {
 
 
       this.loading = true
@@ -177,8 +192,8 @@ export default {
 
 
       let url_request = `${server.baseURL}/public/creators?offset=${offset}&limit=9&ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`
-      if(name !== ""){
-        url_request+= `&titleStartsWith=${name}`
+      if("name" in filters && filters["name"] !== ""){
+        url_request+= `&nameStartsWith=${filters["name"]}`
       }
       axios
           .get(url_request)

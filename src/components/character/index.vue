@@ -22,12 +22,16 @@
               nav
           >
             <v-list-item>
-
-
               <v-list-item-content>
                 <v-text-field
+                    v-model="inp_name"
+                    @keyup="onSearchName()"
                     label="Name"
                 ></v-text-field>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-content>
                 <v-autocomplete
                     v-model="model"
                     :items="comics"
@@ -66,7 +70,6 @@
                     </v-list-item-content>
                   </template>
                 </v-autocomplete>
-
               </v-list-item-content>
             </v-list-item>
           </v-list>
@@ -108,7 +111,7 @@ import { server } from "../../helper";
 import axios from "axios";
 import CharacterCard from "./character_card";
 import Pagination from "../pagination";
-
+let search_params = {};
 export default {
   components: {
     CharacterCard,
@@ -120,6 +123,8 @@ export default {
       loading: true,
       nbResults: 0,
       allCharacters: [],
+
+      inp_name:"",
 
       page: 1,
       count: 0,
@@ -136,18 +141,31 @@ export default {
     this.fetchCharacters();
   },
   methods: {
-    async fetchCharacters() {
+    onSearchName(){
+      if(this.inp_name && this.inp_name.length > 0){
+        search_params["name"] = encodeURIComponent(this.inp_name)
+      }else {
+        delete search_params["name"]
+      }
+      this.fetchCharacters(search_params);
+    },
+
+    fetchCharacters(filters={}) {
       this.loading = true
       let offset = (this.page - 1) * 8
 
-      await axios
-          .get(`${server.baseURL}/public/characters?ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268&offset=`+ offset + `&limit=9`)
-          .then(data => {
-            this.characters = data.data.data.results
-            this.nbResults = data.data.data.total
-            this.count = Math.ceil(data.data.data.total / 8)
-            this.loading = false
-          });
+      let url_request = `${server.baseURL}/public/characters?offset=${offset}&limit=9&ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`
+      if("name" in filters && filters["name"] !== ""){
+        url_request+= `&nameStartsWith=${filters["name"]}`
+      }
+      axios
+        .get(url_request)
+        .then(data => {
+          this.characters = data.data.data.results
+          this.nbResults = data.data.data.total
+          this.count = Math.ceil(data.data.data.total / 8)
+
+        }).finally(()=>{this.loading = false});
     },
 
     handlePageChange(value) {
