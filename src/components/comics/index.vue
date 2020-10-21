@@ -63,10 +63,7 @@
                 >
                   <template v-slot:no-data>
                     <v-list-item>
-                      <v-list-item-title v-if="0== 0">
-                        No data try another search
-                      </v-list-item-title>
-                      <v-list-item-title v-else>
+                      <v-list-item-title>
                         Start type to search a creator
                       </v-list-item-title>
                     </v-list-item>
@@ -282,8 +279,6 @@ export default {
       this.fetchComics(search_params);
     },
     onSearchFormat(){
-      console.log("format")
-      console.log(this.slt_format)
       if(this.slt_format){
         search_params["format"] = encodeURIComponent(this.slt_format)
       }else {
@@ -345,20 +340,21 @@ export default {
                 this.count = Math.ceil(data.data.data.total / 8)
               }).finally(() => {this.loading = false});
       },
-    handlePageChange(value) {
-      this.page = value;
-      this.fetchComics();
-    },
+
 
     removeCharactersChips (item) {
       const index = this.atc_characters.indexOf(item.id)
       if (index >= 0) this.atc_characters.splice(index, 1)
-      this.fetchComics(search_params)
+      this.onSearchCharacters();
     },
     removeCreatorsChips (item) {
       const index = this.atc_creators.indexOf(item.id)
       if (index >= 0) this.atc_creators.splice(index, 1)
-      this.fetchComics(search_params)
+      this.onSearchCreators();
+    },
+    handlePageChange(value) {
+      this.page = value;
+      this.fetchComics(search_params);
     },
 
   }

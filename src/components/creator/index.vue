@@ -34,10 +34,11 @@
               <v-list-item-content>
 
                 <v-autocomplete
-                    v-model="slc_comics_models"
+                    v-model="atc_comics"
                     :items="comics"
                     :loading="isLoadingComics"
                     :search-input.sync="search_comics"
+                    @change="onSearchComics()"
                     chips
                     clearable
                     hide-details
@@ -45,29 +46,24 @@
                     item-text="title"
                     item-value="id"
                     label="Work on comics"
+                    multiple
                 >
                   <template v-slot:no-data>
                     <v-list-item>
-                      <v-list-item-title v-if="0==0">
-                        No data try another search
-                      </v-list-item-title>
-                      <v-list-item-title v-else>
+                      <v-list-item-title>
                         Start type to search a comics
                       </v-list-item-title>
                     </v-list-item>
                   </template>
-                  <template v-slot:selection="{ attr, on, item, selected }">
+                  <template v-slot:selection="data">
                     <v-chip
-                        v-bind="attr"
-                        :input-value="selected"
-                        color="blue-grey"
-                        class="white--text"
-                        v-on="on"
+                            v-bind="data.attrs"
+                            :input-value="data.selected"
+                            close
+                            @click="data.select"
+                            @click:close="removeComicsChips(data.item)"
                     >
-                      <v-icon left>
-                        mdi-bitcoin
-                      </v-icon>
-                      <span v-text="item.title"></span>
+                      <span v-text="data.item.title"></span>
                     </v-chip>
                   </template>
                   <template v-slot:item="{ item }">
@@ -141,7 +137,7 @@ export default {
       isLoadingComics: false,
       comics: [],
       inp_name:"",
-      slc_comics_models: null,
+      atc_comics: null,
       search_comics: null,
 
       page: 1,
@@ -152,11 +148,13 @@ export default {
   watch: {
     search_comics (val) {
       this.isLoadingComics = true
-      // Lazily load input items
-      fetch(`${server.baseURL}/public/comics?titleStartsWith=${val}&limit=10&ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
+      let enc_val = encodeURIComponent(val);
+      fetch(`${server.baseURL}/public/comics?titleStartsWith=${enc_val}&limit=10&ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
           .then(res => res.clone().json())
           .then(res => {
-            this.comics = res.data.results
+            res.data.results.forEach(result => {
+              this.comics.push(result)
+            });
           })
           .catch(err => {
             console.log(err)
@@ -171,8 +169,6 @@ export default {
   methods: {
 
     onSearchName(){
-      console.log(encodeURI(this.inp_name))
-
       if(this.inp_name && this.inp_name.length > 0){
         search_params["name"] = encodeURIComponent(this.inp_name)
       }else {
@@ -180,6 +176,14 @@ export default {
       }
       this.fetchCreators(search_params);
       console.log(search_params)
+    },
+    onSearchComics(){
+      if(this.atc_comics){
+        search_params["comics"] = encodeURIComponent(this.atc_comics)
+      }else {
+        delete search_params["comics"]
+      }
+      this.fetchCreators(search_params);
     },
 
 
@@ -195,6 +199,9 @@ export default {
       if("name" in filters && filters["name"] !== ""){
         url_request+= `&nameStartsWith=${filters["name"]}`
       }
+      if("comics" in filters && filters["comics"] !== ""){
+        url_request+= `&comics=${filters["comics"]}`
+      }
       axios
           .get(url_request)
           .then(data => {
@@ -203,11 +210,18 @@ export default {
             this.count = Math.ceil(data.data.data.total / 8)
           }).finally(() => {this.loading = false});
     },
-    handlePageChange(value) {
-      this.page = value;
-      this.fetchCreators();
+
+
+    removeComicsChips (item) {
+      const index = this.atc_comics.indexOf(item.id)
+      if (index >= 0) this.atc_comics.splice(index, 1)
+      this.onSearchComics();
     },
 
+    handlePageChange(value) {
+      this.page = value;
+      this.fetchCreators(search_params);
+    },
 
   }
 };

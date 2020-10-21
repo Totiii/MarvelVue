@@ -33,40 +33,41 @@
             <v-list-item>
               <v-list-item-content>
                 <v-autocomplete
-                    v-model="model"
-                    :items="comics"
-                    :loading="isLoadingComics"
-                    :search-input.sync="search_comics"
-                    chips
-                    clearable
-                    hide-details
-                    hide-selected
-                    item-text="fullName"
-                    item-value="id"
-                    label="Comics"
+                        v-model="atc_comics"
+                        :items="comics"
+                        :loading="isLoadingComics"
+                        :search-input.sync="search_comics"
+                        @change="onSearchComics()"
+                        chips
+                        clearable
+                        hide-details
+                        hide-selected
+                        item-text="title"
+                        item-value="id"
+                        label="Appears in comics"
+                        multiple
                 >
                   <template v-slot:no-data>
                     <v-list-item>
-                      <v-list-item-title v-if="0==0"> <!-- TODO faire la condition si il y a du text dans l'input-->
-                        No data try another search
-                      </v-list-item-title>
-                      <v-list-item-title v-else>
-                        Start type to search a creator
+                      <v-list-item-title>
+                        Start type to search a comics
                       </v-list-item-title>
                     </v-list-item>
                   </template>
-                  <template v-slot:selection="{ attr, on, item, selected }">
+                  <template v-slot:selection="data">
                     <v-chip
-                        v-bind="attr"
-                        :input-value="selected"
-                        v-on="on"
+                            v-bind="data.attrs"
+                            :input-value="data.selected"
+                            close
+                            @click="data.select"
+                            @click:close="removeComicsChips(data.item)"
                     >
-                      <span v-text="item.fullName"></span>
+                      <span v-text="data.item.title"></span>
                     </v-chip>
                   </template>
                   <template v-slot:item="{ item }">
                     <v-list-item-content>
-                      <v-list-item-title v-text="item.fullName"></v-list-item-title>
+                      <v-list-item-title v-text="item.title"></v-list-item-title>
                     </v-list-item-content>
                   </template>
                 </v-autocomplete>
@@ -102,6 +103,8 @@
         </v-row>
 
         <Pagination v-if="!loading" :count="count" :handle-page-change="handlePageChange" :page="page"></Pagination>
+        <Footer :loading="loading" :attributionText="characters.attributionText" :last_modified="''"></Footer>
+
       </v-col>
     </v-row>
   </v-container>
@@ -111,11 +114,13 @@ import { server } from "../../helper";
 import axios from "axios";
 import CharacterCard from "./character_card";
 import Pagination from "../pagination";
+import Footer from "../footer";
 let search_params = {};
 export default {
   components: {
     CharacterCard,
-    Pagination
+    Pagination,
+    Footer
   },
   data() {
     return {
@@ -125,16 +130,35 @@ export default {
       allCharacters: [],
 
       inp_name:"",
+      isLoadingComics: false,
+      comics: [],
+      atc_comics: null,
+      search_comics: null,
 
       page: 1,
       count: 0,
 
       descriptionLimit: 60,
       entries: [],
-      isLoading: false,
-      model: null,
-      search: null,
     };
+  },
+
+  watch: {
+    search_comics (val) {
+      this.isLoadingComics = true
+      let enc_val = encodeURIComponent(val);
+      fetch(`${server.baseURL}/public/comics?titleStartsWith=${enc_val}&limit=10&ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
+              .then(res => res.clone().json())
+              .then(res => {
+                res.data.results.forEach(result => {
+                  this.comics.push(result)
+                });
+              })
+              .catch(err => {
+                console.log(err)
+              })
+              .finally(() => (this.isLoadingComics = false))
+    },
   },
 
   created() {
@@ -149,6 +173,15 @@ export default {
       }
       this.fetchCharacters(search_params);
     },
+    onSearchComics(){
+      //a voir si on garde, perso pas renseigné en générale
+      if(this.atc_comics){
+        search_params["comics"] = encodeURIComponent(this.atc_comics)
+      }else {
+        delete search_params["comics"]
+      }
+      this.fetchCharacters(search_params);
+    },
 
     fetchCharacters(filters={}) {
       this.loading = true
@@ -157,6 +190,9 @@ export default {
       let url_request = `${server.baseURL}/public/characters?offset=${offset}&limit=9&ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`
       if("name" in filters && filters["name"] !== ""){
         url_request+= `&nameStartsWith=${filters["name"]}`
+      }
+      if("comics" in filters && filters["comics"] !== ""){
+        url_request+= `&comics=${filters["comics"]}`
       }
       axios
         .get(url_request)
@@ -168,9 +204,15 @@ export default {
         }).finally(()=>{this.loading = false});
     },
 
+    removeComicsChips (item) {
+      const index = this.atc_comics.indexOf(item.id)
+      if (index >= 0) this.atc_comics.splice(index, 1)
+      this.onSearchComics();
+    },
+
     handlePageChange(value) {
       this.page = value;
-      this.fetchCharacters();
+      this.fetchCharacters(search_params);
     },
   },
 };
