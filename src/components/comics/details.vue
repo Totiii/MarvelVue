@@ -51,13 +51,15 @@
               </div>
             </v-card-text>
 
-            <v-card-title>Creator: <router-link :to="({ name: 'CreatorDetails', params: { id: creator.id } })" tag="button"> {{ creator.fullName }}</router-link></v-card-title>
+            <div v-if="creator">
+              <v-card-title>Creator: <router-link :to="({ name: 'CreatorDetails', params: { id: creator.id } })" tag="button"> {{ creator.fullName }}</router-link></v-card-title>
 
-            <v-card-subtitle class="pb-0">Related links</v-card-subtitle>
+              <v-card-subtitle class="pb-0">Related links</v-card-subtitle>
 
-            <v-card-text class="text--primary">
-              <div v-for="link in creator.urls" :key="link.type"> <b>{{ link.type | capitalize }} </b>: <a :href="link.url" target="_blank">{{ link.url }}</a> </div>
-            </v-card-text>
+              <v-card-text class="text--primary">
+                <div v-for="link in creator.urls" :key="link.type"> <b>{{ link.type | capitalize }} </b>: <a :href="link.url" target="_blank">{{ link.url }}</a> </div>
+              </v-card-text>
+            </div>
 
             <v-card-subtitle class="pb-0">Useful links</v-card-subtitle>
 
@@ -68,6 +70,16 @@
         </v-row>
       </v-card>
     </v-row>
+
+    <v-row class="justify-center">
+      <v-col
+          cols="12"
+          sm="10"
+      >
+        <CharacterTable v-if="!loading" :type="'comics'" :id="comics_id" :charactersnb="comic.characters.available"></CharacterTable>
+      </v-col>
+    </v-row>
+
 
 
     <v-footer
@@ -85,8 +97,12 @@
 <script>
 import { server } from "../../helper";
 import axios from "axios";
+import CharacterTable from "../character/character_table"
 
 export default {
+  components: {
+    CharacterTable
+  },
   data() {
     return {
       comics_id : this.$route.params.id,
@@ -112,7 +128,6 @@ export default {
           .then(data => {
             this.comic = data.data.data.results[0]
             this.api_res = data.data
-            console.log(this.comic)
           });
       // get creators data
       await axios
