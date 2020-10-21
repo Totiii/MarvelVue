@@ -40,7 +40,7 @@ import axios from "axios";
 import router from "../../router";
 
 export default {
-  props: ['id', 'type', 'charactersnb', 'loading'],
+  props: ['id', 'type', 'charactersnb'],
   data() {
     return {
       search: '',
