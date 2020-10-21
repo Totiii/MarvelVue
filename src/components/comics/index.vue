@@ -51,6 +51,7 @@
                     :items="creators"
                     :loading="isLoadingCreators"
                     :search-input.sync="search_creators"
+                    @change="onSearchCreators()"
                     chips
                     clearable
                     hide-details
@@ -58,10 +59,11 @@
                     item-text="fullName"
                     item-value="id"
                     label="Creators"
+                    multiple
                 >
                   <template v-slot:no-data>
                     <v-list-item>
-                      <v-list-item-title v-if="0==0">
+                      <v-list-item-title v-if="0== 0">
                         No data try another search
                       </v-list-item-title>
                       <v-list-item-title v-else>
@@ -69,18 +71,15 @@
                       </v-list-item-title>
                     </v-list-item>
                   </template>
-                  <template v-slot:selection="{ attr, on, item, selected }">
+                  <template v-slot:selection="data">
                     <v-chip
-                        v-bind="attr"
-                        :input-value="selected"
-                        color="blue-grey"
-                        class="white--text"
-                        v-on="on"
+                            v-bind="data.attrs"
+                            :input-value="data.selected"
+                            close
+                            @click="data.select"
+                            @click:close="removeCreatorsChips(data.item)"
                     >
-                      <v-icon left>
-                        mdi-bitcoin
-                      </v-icon>
-                      <span v-text="item.fullName"></span>
+                      <span v-text="data.item.fullName"></span>
                     </v-chip>
                   </template>
                   <template v-slot:item="{ item }">
@@ -99,6 +98,7 @@
                     :items="characters"
                     :loading="isLoadingCharacters"
                     :search-input.sync="search_characters"
+                    @change="onSearchCharacters()"
                     chips
                     clearable
                     hide-details
@@ -106,24 +106,24 @@
                     item-text="name"
                     item-value="id"
                     label="Characters"
+                    multiple
                 >
                   <template v-slot:no-data>
                     <v-list-item>
-                      <v-list-item-title v-if="0==0">
-                        No data try another search
-                      </v-list-item-title>
-                      <v-list-item-title v-else>
-                        Start type to search a creator
+                      <v-list-item-title>
+                        Start type to search a characters
                       </v-list-item-title>
                     </v-list-item>
                   </template>
-                  <template v-slot:selection="{ attr, on, item, selected }">
+                  <template v-slot:selection="data">
                     <v-chip
-                        v-bind="attr"
-                        :input-value="selected"
-                        v-on="on"
+                            v-bind="data.attrs"
+                            :input-value="data.selected"
+                            close
+                            @click="data.select"
+                            @click:close="removeCharactersChips(data.item)"
                     >
-                      <span v-text="item.name"></span>
+                      <span v-text="data.item.name"></span>
                     </v-chip>
                   </template>
                   <template v-slot:item="{ item }">
@@ -205,6 +205,7 @@ export default {
       slt_format: "",
       inp_isbn: "",
       comics_format:[
+          { name: 'All', url: '' },
           { name: 'Infinite comic', url: 'infinite%20comic' },
           { name: 'Comic', url: 'comic' },
           { name: 'Trade Paperback', url: 'trade%20paperback' },
@@ -222,16 +223,23 @@ export default {
       search_characters: null,
       page: 1,
       count: 0,
+
+
     };
   },
 
   watch: {
     search_creators (val) {
+      //if (this.creators.length > 0) return
       this.isLoadingCreators = true
-      fetch(`${server.baseURL}/public/creators?nameStartsWith=${val}&limit=10&ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
+      let enc_val = encodeURIComponent(val);
+      console.log(enc_val)
+      fetch(`${server.baseURL}/public/creators?nameStartsWith=${enc_val}&limit=10&ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
           .then(res => res.clone().json())
           .then(res => {
-            this.creators = res.data.results
+            res.data.results.forEach(result => {
+              this.creators.push(result)
+            });
           })
           .catch(err => {
             console.log(err)
@@ -240,11 +248,15 @@ export default {
     },
 
     search_characters (val) {
+     // if (this.characters.length > 0) return
       this.isLoadingCharacters = true
-      fetch(`${server.baseURL}/public/characters?nameStartsWith=${val}&limit=10&ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
+      let enc_val = encodeURIComponent(val);
+      fetch(`${server.baseURL}/public/characters?nameStartsWith=${enc_val}&limit=10&ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
           .then(res => res.clone().json())
           .then(res => {
-            this.characters = res.data.results
+            res.data.results.forEach(result => {
+              this.characters.push(result)
+            });
           })
           .catch(err => {
             console.log(err)
@@ -279,6 +291,22 @@ export default {
       }
       this.fetchComics(search_params);
     },
+    onSearchCreators(){
+      if(this.atc_creators){
+        search_params["creators"] = encodeURIComponent(this.atc_creators)
+      }else {
+        delete search_params["creators"]
+      }
+      this.fetchComics(search_params);
+    },
+    onSearchCharacters(){
+      if(this.atc_characters){
+        search_params["characters"] = encodeURIComponent(this.atc_characters)
+      }else {
+        delete search_params["characters"]
+      }
+      this.fetchComics(search_params);
+    },
     onSearchISBN(){
       if(this.inp_isbn && this.inp_isbn.length > 0){
         search_params["isbn"] = encodeURIComponent(this.inp_isbn)
@@ -300,6 +328,9 @@ export default {
       if("format" in filters && filters["format"] !== ""){
         url_request+= `&format=${filters["format"]}`
       }
+      if("creators" in filters && filters["creators"] !== ""){
+        url_request+= `&creators=${filters["creators"]}`
+      }
       if("characters" in filters && filters["characters"] !== ""){
         url_request+= `&characters=${filters["characters"]}`
       }
@@ -319,6 +350,16 @@ export default {
       this.fetchComics();
     },
 
+    removeCharactersChips (item) {
+      const index = this.atc_characters.indexOf(item.id)
+      if (index >= 0) this.atc_characters.splice(index, 1)
+      this.fetchComics(search_params)
+    },
+    removeCreatorsChips (item) {
+      const index = this.atc_creators.indexOf(item.id)
+      if (index >= 0) this.atc_creators.splice(index, 1)
+      this.fetchComics(search_params)
+    },
 
   }
 };
