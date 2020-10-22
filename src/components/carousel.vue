@@ -60,7 +60,8 @@
                 </div>
 
                 <v-card-text>
-                  <div>{{ data.description | limitDescription330Char }}</div>
+                  <div v-if="data.description">{{ data.description | limitDescription330Char }}</div>
+                  <div v-if="!data.description">No description avaiblable for {{data.title | capitalize}}</div>
                 </v-card-text>
 
               </v-col>
