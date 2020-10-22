@@ -8,9 +8,13 @@
         max-width="300"
         type="article"
     ></v-skeleton-loader>
+    <v-alert
+        v-if="errorFetch"
+        type="warning"
+    >An error has occurred: {{this.errorFetch.response.data.status}}</v-alert>
 
     <v-card
-        v-if="!loading_character"
+        v-if="!loading_character && !errorFetch"
         class="mx-auto d-inline-block mb-10"
     >
       <v-row class="ml-2">
@@ -57,12 +61,12 @@
             sm="4"
         >
           <v-skeleton-loader
-              v-if="loading_series"
+              v-if="loading_series && !errorFetch"
               class="mx-auto"
               max-width="300"
               type="article"
           ></v-skeleton-loader>
-          <SeriesCarousel v-if="!loading_series" :series="series"></SeriesCarousel>
+          <SeriesCarousel v-if="!loading_series && !errorFetch" :series="series"></SeriesCarousel>
         </v-col>
 
         <!-- Events Carousel -->
@@ -71,19 +75,19 @@
             sm="4"
         >
           <v-skeleton-loader
-              v-if="loading_events"
+              v-if="loading_events && !errorFetch"
               class="mx-auto"
               max-width="300"
               type="article"
           ></v-skeleton-loader>
-          <EventsCarousel v-if="!loading_events" :events="events"></EventsCarousel>
+          <EventsCarousel v-if="!loading_events && !errorFetch" :events="events"></EventsCarousel>
         </v-col>
 
       </v-row>
 
 
     <v-footer
-        v-if="!loading_character"
+        v-if="!loading_character && !errorFetch"
         absolute
         class="font-weight-medium"
       >
@@ -119,6 +123,7 @@ export default {
       events: [],
       series: [],
       stories: [],
+      errorFetch:null
     };
   },
   created() {
@@ -127,11 +132,15 @@ export default {
   methods: {
     async fetchCharacters() {
       // get character data
+      this.errorFetch = null;
       await axios
           .get(`${server.baseURL}/public/characters/${this.character_id}?ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
           .then(data => {
-            this.character = data.data.data.results[0]
-            this.api_res = data.data
+            console.log(data)
+              this.character = data.data.data.results[0]
+              this.api_res = data.data
+          }).catch(err => {this.errorFetch = err})
+          .finally(() => {
             this.loading_character = false
           });
       // get character events
