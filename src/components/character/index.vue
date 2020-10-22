@@ -68,10 +68,6 @@ export default {
       allCharacters: [],
 
       inp_name:"",
-      isLoadingComics: false,
-      comics: [],
-      atc_comics: null,
-      search_comics: null,
 
       page: 1,
       count: 0,
@@ -81,23 +77,7 @@ export default {
     };
   },
 
-  watch: {
-    search_comics (val) {
-      this.isLoadingComics = true
-      let enc_val = encodeURIComponent(val);
-      fetch(`${server.baseURL}/public/comics?titleStartsWith=${enc_val}&limit=10&${server.apikey}`)
-              .then(res => res.clone().json())
-              .then(res => {
-                res.data.results.forEach(result => {
-                  this.comics.push(result)
-                });
-              })
-              .catch(err => {
-                console.log(err)
-              })
-              .finally(() => (this.isLoadingComics = false))
-    },
-  },
+
 
   created() {
     this.fetchCharacters();
@@ -111,15 +91,7 @@ export default {
       }
       this.fetchCharacters(search_params);
     },
-    onSearchComics(){
-      //a voir si on garde, perso pas renseigné en générale
-      if(this.atc_comics){
-        search_params["comics"] = encodeURIComponent(this.atc_comics)
-      }else {
-        delete search_params["comics"]
-      }
-      this.fetchCharacters(search_params);
-    },
+
 
     fetchCharacters(filters={}) {
       this.loading = true
@@ -129,9 +101,7 @@ export default {
       if("name" in filters && filters["name"] !== ""){
         url_request+= `&nameStartsWith=${filters["name"]}`
       }
-      if("comics" in filters && filters["comics"] !== ""){
-        url_request+= `&comics=${filters["comics"]}`
-      }
+
       axios
         .get(url_request)
         .then(data => {
@@ -142,11 +112,6 @@ export default {
         }).finally(()=>{this.loading = false});
     },
 
-    removeComicsChips (item) {
-      const index = this.atc_comics.indexOf(item.id)
-      if (index >= 0) this.atc_comics.splice(index, 1)
-      this.onSearchComics();
-    },
 
     handlePageChange(value) {
       this.page = value;
