@@ -1,83 +1,17 @@
 <template>
   <v-container fluid>
-    <v-row>
-      <v-col cols="3" >
-
-        <v-navigation-drawer
-            permanent
-            width="100%"
-        >
-          <v-list-item>
-            <v-list-item-content>
-              <v-list-item-title class="title">
-                Filter characters
-              </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-
-          <v-divider></v-divider>
-
-          <v-list
-              dense
-              nav
-          >
-            <v-list-item>
-              <v-list-item-content>
-                <v-text-field
-                    v-model="inp_name"
-                    @keyup="onSearchName()"
-                    label="Name"
-                ></v-text-field>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item>
-              <v-list-item-content>
-                <v-autocomplete
-                        v-model="atc_comics"
-                        :items="comics"
-                        :loading="isLoadingComics"
-                        :search-input.sync="search_comics"
-                        @change="onSearchComics()"
-                        chips
-                        clearable
-                        hide-details
-                        hide-selected
-                        item-text="title"
-                        item-value="id"
-                        label="Appears in comics"
-                        multiple
-                >
-                  <template v-slot:no-data>
-                    <v-list-item>
-                      <v-list-item-title>
-                        Start type to search a comics
-                      </v-list-item-title>
-                    </v-list-item>
-                  </template>
-                  <template v-slot:selection="data">
-                    <v-chip
-                            v-bind="data.attrs"
-                            :input-value="data.selected"
-                            close
-                            @click="data.select"
-                            @click:close="removeComicsChips(data.item)"
-                    >
-                      <span v-text="data.item.title"></span>
-                    </v-chip>
-                  </template>
-                  <template v-slot:item="{ item }">
-                    <v-list-item-content>
-                      <v-list-item-title v-text="item.title"></v-list-item-title>
-                    </v-list-item-content>
-                  </template>
-                </v-autocomplete>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
-        </v-navigation-drawer>
-
+    <v-row class="justify-center">
+      <v-col cols="9">
+          <v-text-field
+              v-model="inp_name"
+              @keyup="onSearchName()"
+              label="Filter by name"
+              outlined
+              shaped
+          ></v-text-field>
       </v-col>
-
+    </v-row>
+    <v-row class="justify-center">
       <v-col cols="9">
         <v-row v-if="loading">
           <v-col
