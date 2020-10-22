@@ -95,6 +95,11 @@
           </v-col>
         </v-row>
 
+        <v-alert
+            v-if="!loading && creators.data.results.length < 1"
+            type="info"
+        >No creators to display</v-alert>
+
 
         <v-row v-if="!loading">
           <v-col

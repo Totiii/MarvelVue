@@ -8,9 +8,13 @@
         max-width="300"
         type="article"
     ></v-skeleton-loader>
+    <v-alert
+        v-if="errorFetch"
+        type="warning"
+    >An error has occurred: {{this.errorFetch.response.data.status}}</v-alert>
 
     <v-card
-        v-if="!loading_character"
+        v-if="!loading_character && !errorFetch"
         class="mx-auto d-inline-block mb-10"
     >
       <v-row class="ml-2">
@@ -70,7 +74,7 @@
 
 
     <v-footer
-        v-if="!loading_character"
+        v-if="!loading_character && !errorFetch"
         absolute
         class="font-weight-medium"
       >
@@ -101,6 +105,7 @@ export default {
       api_res: undefined,
       loading_character: true,
       comics: [],
+      errorFetch:null,
     };
   },
   created() {
@@ -109,11 +114,14 @@ export default {
   methods: {
     async fetchCharacters() {
       // get character data
+      this.errorFetch = null;
       await axios
           .get(`${server.baseURL}/public/characters/${this.character_id}?ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
           .then(data => {
             this.character = data.data.data.results[0]
             this.api_res = data.data
+          }).catch(err => {this.errorFetch = err})
+          .finally(() => {
             this.loading_character = false
           });
     },

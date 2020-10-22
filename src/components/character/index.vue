@@ -91,6 +91,10 @@
             ></v-skeleton-loader>
           </v-col>
         </v-row>
+        <v-alert
+            v-if="!loading && characters.length < 1"
+            type="info"
+        >No characters to display</v-alert>
 
         <v-row v-if="!loading">
           <v-col
