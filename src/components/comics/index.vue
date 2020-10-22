@@ -161,6 +161,11 @@
       </v-col>
     </v-row>
 
+      <v-alert
+          v-if="!loading && comics_list.data.results.length < 1"
+          type="info"
+      >No comics to display</v-alert>
+
 
     <v-row v-if="!loading">
       <v-col
