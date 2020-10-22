@@ -130,14 +130,14 @@ export default {
       // get comic data
       this.errorFetch = null;
       await axios
-          .get(`${server.baseURL}/public/comics/${this.comics_id}?ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
+          .get(`${server.baseURL}/public/comics/${this.comics_id}?${server.apikey}`)
           .then(data => {
             this.comic = data.data.data.results[0]
             this.api_res = data.data
           }).catch(err => {this.errorFetch = err});
       // get creators data
       await axios
-          .get(`${server.baseURL}/public/comics/${this.comics_id}/creators?ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
+          .get(`${server.baseURL}/public/comics/${this.comics_id}/creators?${server.apikey}`)
           .then(data => {
             this.creator = data.data.data.results[0]
           }).catch(err => {this.errorFetch = err})

@@ -63,7 +63,7 @@ export default {
     async fetchCharacters() {
       // get characters data
       await axios
-          .get(`${server.baseURL}/public/${this.type}/${this.id}/characters?ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
+          .get(`${server.baseURL}/public/${this.type}/${this.id}/characters?${server.apikey}`)
           .then(data => {
             data.data.data.results.forEach(element => {
               let datatable

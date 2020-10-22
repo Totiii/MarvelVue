@@ -236,7 +236,7 @@ export default {
       this.isLoadingCreators = true
       let enc_val = encodeURIComponent(val);
       console.log(enc_val)
-      fetch(`${server.baseURL}/public/creators?nameStartsWith=${enc_val}&limit=10&ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
+      fetch(`${server.baseURL}/public/creators?nameStartsWith=${enc_val}&limit=10&${server.apikey}`)
           .then(res => res.clone().json())
           .then(res => {
             res.data.results.forEach(result => {
@@ -253,7 +253,7 @@ export default {
      // if (this.characters.length > 0) return
       this.isLoadingCharacters = true
       let enc_val = encodeURIComponent(val);
-      fetch(`${server.baseURL}/public/characters?nameStartsWith=${enc_val}&limit=10&ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
+      fetch(`${server.baseURL}/public/characters?nameStartsWith=${enc_val}&limit=10&${server.apikey}`)
           .then(res => res.clone().json())
           .then(res => {
             res.data.results.forEach(result => {
@@ -321,7 +321,7 @@ export default {
     fetchComics(filters={}) {
       this.loading = true
       let offset = (this.page - 1) * 8
-      let url_request = `${server.baseURL}/public/comics?offset=${offset}&limit=9&ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`
+      let url_request = `${server.baseURL}/public/comics?offset=${offset}&limit=9&${server.apikey}`
       if("title" in filters && filters["title"] !== ""){
         url_request+= `&titleStartsWith=${filters["title"]}`
       }

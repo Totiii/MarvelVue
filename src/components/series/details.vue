@@ -104,7 +104,7 @@ export default {
     async fetchComics() {
       // get serie data
       await axios
-          .get(`${server.baseURL}/public/series/${this.serie_id}?ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
+          .get(`${server.baseURL}/public/series/${this.serie_id}?${server.apikey}`)
           .then(data => {
             this.serie = data.data.data.results[0]
             this.api_res = data.data

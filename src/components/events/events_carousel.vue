@@ -19,7 +19,7 @@ export default{
     async fetchEvents() {
       // get events
       await axios
-          .get(`${server.baseURL}/public/${this.type}/${this.id}/events?ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
+          .get(`${server.baseURL}/public/${this.type}/${this.id}/events?${server.apikey}`)
           .then(data => {
             this.datas = data.data.data.results
             this.loading = false

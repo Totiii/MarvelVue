@@ -151,7 +151,7 @@ export default {
     search_comics (val) {
       this.isLoadingComics = true
       let enc_val = encodeURIComponent(val);
-      fetch(`${server.baseURL}/public/comics?titleStartsWith=${enc_val}&limit=10&ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
+      fetch(`${server.baseURL}/public/comics?titleStartsWith=${enc_val}&limit=10&${server.apikey}`)
               .then(res => res.clone().json())
               .then(res => {
                 res.data.results.forEach(result => {
@@ -191,7 +191,7 @@ export default {
       this.loading = true
       let offset = (this.page - 1) * 8
 
-      let url_request = `${server.baseURL}/public/characters?offset=${offset}&limit=9&ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`
+      let url_request = `${server.baseURL}/public/characters?offset=${offset}&limit=9&${server.apikey}`
       if("name" in filters && filters["name"] !== ""){
         url_request+= `&nameStartsWith=${filters["name"]}`
       }
