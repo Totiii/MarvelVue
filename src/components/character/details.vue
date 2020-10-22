@@ -48,7 +48,7 @@
             cols="12"
             sm="4"
         >
-          <ComicsCarousel :id="character_id" :type="'characters'" :url_name="'ComicsDetails'" :card_type="'Comics'"></ComicsCarousel>
+          <ComicsCarousel :id="character_id" :type="'characters'" :url_name="'ComicsDetails'" :card_type="'Comics'" :color="'orange darken-3'"></ComicsCarousel>
         </v-col>
 
         <!-- Series Carousel -->
@@ -56,13 +56,7 @@
             cols="12"
             sm="4"
         >
-          <v-skeleton-loader
-              v-if="loading_series"
-              class="mx-auto"
-              max-width="300"
-              type="article"
-          ></v-skeleton-loader>
-          <SeriesCarousel v-if="!loading_series" :series="series"></SeriesCarousel>
+          <SeriesCarousel :id="character_id" :type="'characters'" :url_name="'SerieDetail'" :card_type="'Series'" :color="'indigo darken-3'"></SeriesCarousel>
         </v-col>
 
         <!-- Events Carousel -->
@@ -70,15 +64,8 @@
             cols="12"
             sm="4"
         >
-          <v-skeleton-loader
-              v-if="loading_events"
-              class="mx-auto"
-              max-width="300"
-              type="article"
-          ></v-skeleton-loader>
-          <EventsCarousel v-if="!loading_events" :events="events"></EventsCarousel>
+          <EventsCarousel :id="character_id" :type="'characters'" :url_name="'EventsDetails'" :card_type="'Events'" :color="'amber darken-3'"></EventsCarousel>
         </v-col>
-
       </v-row>
 
 
@@ -113,12 +100,7 @@ export default {
       character: undefined,
       api_res: undefined,
       loading_character: true,
-      loading_series: true,
-      loading_events: true,
       comics: [],
-      events: [],
-      series: [],
-      stories: [],
     };
   },
   created() {
@@ -133,21 +115,6 @@ export default {
             this.character = data.data.data.results[0]
             this.api_res = data.data
             this.loading_character = false
-          });
-      // get character events
-      await axios
-          .get(`${server.baseURL}/public/characters/${this.character_id}/events?ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
-          .then(data => {
-            this.events = data.data.data.results
-            this.loading_events = false
-          });
-      // get character series
-      await axios
-          .get(`${server.baseURL}/public/characters/${this.character_id}/series?ts=1&apikey=2b411b37798498d7207046977f4c5f83&hash=a09a640a44a713fa08d7d687a53fe268`)
-          .then(data => {
-            this.series = data.data.data.results
-            this.loading = false
-            this.loading_series = false
           });
     },
   }

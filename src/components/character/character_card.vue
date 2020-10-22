@@ -17,7 +17,7 @@
     <v-divider class="mx-4"></v-divider>
 
     <v-card-text>
-      <router-link :to="'/character/' + character.id" tag="button">
+      <router-link :to="({ name: 'CharacterDetails', params: { id: character.id } })" tag="button">
         <v-btn
             block
             color="grey lighten-3 lighten-2"

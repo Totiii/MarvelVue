@@ -20,7 +20,7 @@
     <v-divider class="mx-4"></v-divider>
 
     <v-card-actions>
-      <router-link :to="'/creators/' + creator.id" tag="button">
+      <router-link :to="({ name: 'CreatorDetails', params: { id: creator.id } })" tag="button">
         <v-btn
             block
             color="grey lighten-3 lighten-2"

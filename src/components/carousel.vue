@@ -16,7 +16,8 @@
             v-click-outside
             cols="12"
             sm="11"
-            class="text-lg-center orange darken-3"
+            class="text-lg-center"
+            :class="[color]"
         >
           <h2>{{ card_type }}</h2>
         </v-col>
@@ -95,7 +96,7 @@
 
 export default{
   name: 'carousel',
-  props: ['id', 'type', 'card_type', 'url_name'],
+  props: ['id', 'type', 'card_type', 'url_name', 'color'],
   data() {
     return {
       loading: true,
